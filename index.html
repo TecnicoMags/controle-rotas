@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <style>
     body {
       padding: 20px;
@@ -72,30 +74,44 @@
   <div id="adminModal">
     <div class="modal-content">
       <h5>Login Administrativo</h5>
-      <input type="password" id="senhaAdmin" class="form-control mb-3" placeholder="Digite a senha">
+      <input type="email" id="emailAdmin" class="form-control mb-2" placeholder="E-mail">
+      <input type="password" id="senhaAdmin" class="form-control mb-3" placeholder="Senha">
       <button class="btn btn-primary w-100" onclick="verificarSenha()">Entrar</button>
       <button class="btn btn-link w-100 mt-2" onclick="fecharLogin()">Cancelar</button>
     </div>
   </div>
 
   <script>
+    // Firebase Configuração
+    const firebaseConfig = {
+      apiKey: "AIzaSyAa-TWfcWdZwGQ7VqNew6wtv_kSxeAb0zk",
+      authDomain: "controle-rotas-db9c0.firebaseapp.com",
+      projectId: "controle-rotas-db9c0",
+      storageBucket: "controle-rotas-db9c0.firebasestorage.app",
+      messagingSenderId: "1097988735968",
+      appId: "1:1097988735968:web:d9a795a7564dc5eb566185"
+    };
+    firebase.initializeApp(firebaseConfig);
+
     function abrirLogin() {
       document.getElementById('adminModal').style.display = 'block';
     }
 
     function fecharLogin() {
       document.getElementById('adminModal').style.display = 'none';
+      document.getElementById('emailAdmin').value = '';
       document.getElementById('senhaAdmin').value = '';
     }
 
     function verificarSenha() {
+      const email = document.getElementById('emailAdmin').value;
       const senha = document.getElementById('senhaAdmin').value;
-      if (senha === 'admin123') {
-        habilitarEdicao();
-        fecharLogin();
-      } else {
-        alert('Senha incorreta!');
-      }
+      firebase.auth().signInWithEmailAndPassword(email, senha)
+        .then(() => {
+          habilitarEdicao();
+          fecharLogin();
+        })
+        .catch(error => alert("Erro: " + error.message));
     }
 
     function imprimirPagina() {
@@ -129,14 +145,12 @@
     function salvarLocal() {
       const linhas = document.querySelectorAll('#tabelaRotas tbody tr');
       const dados = [];
-
       linhas.forEach(tr => {
         const celulas = tr.querySelectorAll('td');
         const linha = [];
         celulas.forEach(td => linha.push(td.innerText));
         dados.push(linha);
       });
-
       localStorage.setItem('dadosRotas', JSON.stringify(dados));
       alert('Alterações salvas localmente.');
     }
