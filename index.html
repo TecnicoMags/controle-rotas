@@ -33,6 +33,23 @@
     td[contenteditable] {
       background-color: #fff3cd;
     }
+    .rota-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .rota-box {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 200px;
+    }
+    .rota-box h5 {
+      margin-bottom: 10px;
+    }
+    .zona-select {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -48,21 +65,9 @@
       <button class="btn btn-primary float-end" onclick="abrirLogin()" id="btnEditar">Editar / Configurar</button>
     </div>
 
-    <!-- Tabela de Visualização -->
-    <div class="table-responsive" id="tabelaContainer">
-      <table id="tabelaRotas" class="table table-bordered">
-        <thead class="table-light">
-          <tr>
-            <th>Postos</th>
-            <th>Rota 1<br><small>Zona A</small></th>
-            <th>Rota 2<br><small>Zona B</small></th>
-            <th>Rota 3<br><small>Zona C</small></th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Os dados serão carregados via JavaScript -->
-        </tbody>
-      </table>
+    <!-- Container das Rotas -->
+    <div class="rota-container" id="rotaContainer">
+      <!-- As rotas serão inseridas dinamicamente -->
     </div>
   </div>
 
@@ -88,14 +93,14 @@
       appId: "1:59148195031:web:706861689db1bb7ef10c92",
       measurementId: "G-18RRBK77FZ"
     };
-
-    // Firebase global para navegadores
     const firebase = window.firebase;
     firebase.initializeApp(firebaseConfig);
   </script>
 
   <!-- Código principal da aplicação -->
   <script>
+    const zonas = ['Zona Norte', 'Zona Sul', 'Zona Oeste', 'Baixada', 'Região Serrana'];
+
     function abrirLogin() {
       document.getElementById('adminModal').style.display = 'block';
     }
@@ -122,8 +127,7 @@
     }
 
     function exportarImagem() {
-      const container = document.getElementById('tabelaContainer');
-      html2canvas(container).then(canvas => {
+      html2canvas(document.getElementById('rotaContainer')).then(canvas => {
         const link = document.createElement('a');
         link.download = 'rotas.png';
         link.href = canvas.toDataURL('image/png');
@@ -132,48 +136,97 @@
     }
 
     function exportarXLS() {
-      const tabela = document.getElementById('tabelaRotas');
-      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Rotas" });
-      XLSX.writeFile(wb, "rotas.xlsx");
+      let wb = XLSX.utils.book_new();
+      document.querySelectorAll('.rota-box').forEach((box, index) => {
+        const table = box.querySelector('table');
+        const ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, `Rota ${index + 1}`);
+      });
+      XLSX.writeFile(wb, 'rotas.xlsx');
     }
 
     function habilitarEdicao() {
-      const celulas = document.querySelectorAll('#tabelaRotas tbody td');
-      celulas.forEach(td => {
-        td.setAttribute('contenteditable', 'true');
+      document.querySelectorAll('td[contenteditable]').forEach(td => {
+        td.contentEditable = true;
       });
-      alert('Modo de edição ativado. Agora você pode editar diretamente na tabela.');
+      document.querySelectorAll('.zona-select').forEach(select => {
+        select.disabled = false;
+      });
+      alert('Modo de edição ativado. Agora você pode editar rotas e zonas.');
     }
 
     function salvarLocal() {
-      const linhas = document.querySelectorAll('#tabelaRotas tbody tr');
-      const dados = [];
-      linhas.forEach(tr => {
-        const celulas = tr.querySelectorAll('td');
-        const linha = [];
-        celulas.forEach(td => linha.push(td.innerText));
-        dados.push(linha);
+      const rotas = [];
+      document.querySelectorAll('.rota-box').forEach((box, i) => {
+        const zona = box.querySelector('select').value;
+        const postos = [];
+        box.querySelectorAll('tbody tr').forEach(tr => {
+          postos.push(tr.cells[0].innerText);
+        });
+        rotas.push({ rota: i + 1, zona, postos });
       });
-      localStorage.setItem('dadosRotas', JSON.stringify(dados));
+      localStorage.setItem('dadosRotas', JSON.stringify(rotas));
       alert('Alterações salvas localmente.');
     }
 
     function carregarLocal() {
-      const dadosSalvos = localStorage.getItem('dadosRotas');
-      if (dadosSalvos) {
-        const dados = JSON.parse(dadosSalvos);
-        const tbody = document.querySelector('#tabelaRotas tbody');
-        tbody.innerHTML = '';
-        dados.forEach(linha => {
-          const row = `<tr>
-            <td>${linha[0]}</td>
-            <td>${linha[1]}</td>
-            <td>${linha[2]}</td>
-            <td>${linha[3]}</td>
-          </tr>`;
-          tbody.innerHTML += row;
+      const container = document.getElementById('rotaContainer');
+      const dados = JSON.parse(localStorage.getItem('dadosRotas')) || [];
+      container.innerHTML = '';
+      if (dados.length === 0) {
+        for (let i = 1; i <= 3; i++) criarRota(container, i, zonas[0]);
+      } else {
+        dados.forEach((rota, i) => criarRota(container, rota.rota, rota.zona, rota.postos));
+      }
+    }
+
+    function criarRota(container, numero, zonaSelecionada, postos = []) {
+      const box = document.createElement('div');
+      box.className = 'rota-box';
+
+      const titulo = document.createElement('h5');
+      titulo.textContent = `Rota ${numero}`;
+
+      const select = document.createElement('select');
+      select.className = 'form-select form-select-sm zona-select';
+      zonas.forEach(z => {
+        const option = document.createElement('option');
+        option.value = z;
+        option.text = z;
+        if (z === zonaSelecionada) option.selected = true;
+        select.appendChild(option);
+      });
+      select.disabled = true;
+
+      const tabela = document.createElement('table');
+      tabela.className = 'table table-sm table-bordered';
+      const tbody = document.createElement('tbody');
+
+      if (postos.length === 0) {
+        for (let i = 0; i < 5; i++) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.textContent = `Posto ${i + 1}`;
+          td.setAttribute('contenteditable', 'false');
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+      } else {
+        postos.forEach(nome => {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.textContent = nome;
+          td.setAttribute('contenteditable', 'false');
+          tr.appendChild(td);
+          tbody.appendChild(tr);
         });
       }
+
+      tabela.appendChild(tbody);
+      box.appendChild(titulo);
+      box.appendChild(select);
+      box.appendChild(tabela);
+      container.appendChild(box);
     }
 
     window.onload = carregarLocal;
