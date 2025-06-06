@@ -50,6 +50,15 @@
     .zona-select {
       margin-bottom: 10px;
     }
+    .btn-editar-postos {
+      margin-top: 5px;
+      font-size: 0.8rem;
+    }
+    @media print {
+      body *:not(#rotaContainer):not(#rotaContainer *) {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -57,12 +66,12 @@
     <h2 class="mb-4">Lista de Rotas - Visualização</h2>
 
     <!-- Botões Gerais -->
-    <div class="mb-3">
+    <div class="mb-3" id="botoesContainer">
       <button class="btn btn-secondary me-2" onclick="exportarXLS()">Exportar para Excel</button>
-      <button class="btn btn-secondary me-2" onclick="imprimirPagina()">Imprimir</button>
+      <button class="btn btn-secondary me-2" onclick="imprimirModulos()">Imprimir</button>
       <button class="btn btn-secondary me-2" onclick="exportarImagem()">Exportar como Imagem</button>
-      <button class="btn btn-success me-2" onclick="salvarLocal()">Salvar Alterações</button>
-      <button class="btn btn-primary float-end" onclick="abrirLogin()" id="btnEditar">Editar / Configurar</button>
+      <button class="btn btn-success me-2 d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
+      <button class="btn btn-primary float-end" onclick="alternarLogin()" id="btnLogin">Editar / Configurar</button>
     </div>
 
     <!-- Container das Rotas -->
@@ -101,6 +110,18 @@
   <script>
     const zonas = ['Zona Norte', 'Zona Sul', 'Zona Oeste', 'Baixada', 'Região Serrana'];
 
+    function alternarLogin() {
+      const usuario = firebase.auth().currentUser;
+      if (usuario) {
+        firebase.auth().signOut();
+        document.getElementById('btnLogin').textContent = 'Editar / Configurar';
+        document.getElementById('btnSalvar').classList.add('d-none');
+        window.location.reload();
+      } else {
+        abrirLogin();
+      }
+    }
+
     function abrirLogin() {
       document.getElementById('adminModal').style.display = 'block';
     }
@@ -122,7 +143,7 @@
         .catch(error => alert("Erro: " + error.message));
     }
 
-    function imprimirPagina() {
+    function imprimirModulos() {
       window.print();
     }
 
@@ -152,7 +173,24 @@
       document.querySelectorAll('.zona-select').forEach(select => {
         select.disabled = false;
       });
-      alert('Modo de edição ativado. Agora você pode editar rotas e zonas.');
+      document.getElementById('btnSalvar').classList.remove('d-none');
+      document.getElementById('btnLogin').textContent = 'Sair';
+      alert('Modo de edição ativado. Agora você pode editar rotas, zonas e postos.');
+    }
+
+    function editarPostos(box, tbody) {
+      const novo = prompt('Quantos postos deseja exibir nesta rota?');
+      if (!novo || isNaN(novo)) return;
+      const qtd = parseInt(novo);
+      tbody.innerHTML = '';
+      for (let i = 0; i < qtd; i++) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = `Posto ${i + 1}`;
+        td.setAttribute('contenteditable', 'true');
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
     }
 
     function salvarLocal() {
@@ -223,9 +261,15 @@
       }
 
       tabela.appendChild(tbody);
+      const btnEdit = document.createElement('button');
+      btnEdit.className = 'btn btn-sm btn-outline-primary btn-editar-postos';
+      btnEdit.textContent = 'Editar quantidade de postos';
+      btnEdit.onclick = () => editarPostos(box, tbody);
+
       box.appendChild(titulo);
       box.appendChild(select);
       box.appendChild(tabela);
+      box.appendChild(btnEdit);
       container.appendChild(box);
     }
 
