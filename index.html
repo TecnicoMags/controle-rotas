@@ -3,138 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle de Rotas - Visualização</title>
+  <title>Controle de Rotas</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <style>
-    body {
-      padding: 20px;
+    .btn-remover-rota {
+      position: absolute;
+      top: 5px;
+      right: 5px;
     }
-    #adminModal {
-      display: none;
-      position: fixed;
-      z-index: 1050;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-    }
-    .modal-content {
-      margin: 10% auto;
-      padding: 20px;
-      background: #fff;
-      max-width: 400px;
-      border-radius: 10px;
+    .btn-remover-posto {
+      float: right;
+      color: red;
+      cursor: pointer;
     }
     td[contenteditable] {
-      background-color: #fff3cd;
-    }
-    .rota-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-    .rota-box {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 10px;
-      min-width: 200px;
-    }
-    .rota-box h5 {
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    .zona-select {
-      margin-bottom: 10px;
-    }
-    .btn-editar-postos {
-      margin-top: 5px;
-      font-size: 0.8rem;
-    }
-    @media print {
-      body *:not(#rotaContainer):not(#rotaContainer *) {
-        display: none;
-      }
+      background: #ffffcc;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 class="mb-4 text-center">Lista de Rotas - Visualização</h2>
-
-    <!-- Botões Gerais -->
-    <div class="mb-3" id="botoesContainer">
-      <button class="btn btn-secondary me-2" onclick="exportarXLS()">Exportar para Excel</button>
-      <button class="btn btn-secondary me-2" onclick="imprimirModulos()">Imprimir</button>
-      <button class="btn btn-secondary me-2" onclick="exportarImagem()">Exportar como Imagem</button>
-      <button class="btn btn-success me-2 d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
-      <button class="btn btn-info me-2 d-none" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
-      <button class="btn btn-primary float-end" onclick="alternarLogin()" id="btnLogin">Editar / Configurar</button>
+  <div class="container py-4">
+    <h2 class="text-center">Controle de Rotas</h2>
+    <div class="d-flex justify-content-between mb-3">
+      <div>
+        <button class="btn btn-secondary" onclick="exportarXLS()">Exportar Excel</button>
+        <button class="btn btn-secondary" onclick="exportarImagem()">Exportar Imagem</button>
+        <button class="btn btn-secondary" onclick="imprimirModulos()">Imprimir</button>
+        <button class="btn btn-success d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
+        <button class="btn btn-info d-none" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
+      </div>
+      <button class="btn btn-primary" onclick="alternarLogin()" id="btnLogin">Editar / Configurar</button>
     </div>
-
-    <!-- Container das Rotas -->
-    <div class="rota-container" id="rotaContainer">
-      <!-- As rotas serão inseridas dinamicamente -->
-    </div>
+    <div id="rotaContainer" class="row g-3"></div>
   </div>
 
-  <!-- Modal de Login Administrativo -->
-  <div id="adminModal">
-    <div class="modal-content">
+  <div id="adminModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75" style="display:none">
+    <div class="bg-white p-4 rounded">
       <h5>Login Administrativo</h5>
       <input type="email" id="emailAdmin" class="form-control mb-2" placeholder="E-mail">
       <input type="password" id="senhaAdmin" class="form-control mb-3" placeholder="Senha">
-      <button class="btn btn-primary w-100" onclick="verificarSenha()">Entrar</button>
-      <button class="btn btn-link w-100 mt-2" onclick="fecharLogin()">Cancelar</button>
+      <button class="btn btn-primary w-100 mb-2" onclick="verificarSenha()">Entrar</button>
+      <button class="btn btn-secondary w-100" onclick="fecharLogin()">Cancelar</button>
     </div>
   </div>
 
-  <!-- Firebase: configuração e inicialização -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDZXCaGEnBd8BujXKcrruSVFzvZDbtGToM",
       authDomain: "web-rotas-mags.firebaseapp.com",
       projectId: "web-rotas-mags",
-      storageBucket: "web-rotas-mags.firebasestorage.app",
+      storageBucket: "web-rotas-mags.appspot.com",
       messagingSenderId: "59148195031",
-      appId: "1:59148195031:web:706861689db1bb7ef10c92",
-      measurementId: "G-18RRBK77FZ"
+      appId: "1:59148195031:web:706861689db1bb7ef10c92"
     };
-    const firebase = window.firebase;
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Código principal da aplicação -->
   <script>
-    const zonas = ['Zona Norte', 'Zona Sul', 'Zona Oeste', 'Baixada', 'Região Serrana'];
+    const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serrana"];
 
     function alternarLogin() {
-      const usuario = firebase.auth().currentUser;
-      if (usuario) {
+      const user = firebase.auth().currentUser;
+      if (user) {
         firebase.auth().signOut();
-        document.getElementById('btnLogin').textContent = 'Editar / Configurar';
+        document.getElementById('btnLogin').innerText = 'Editar / Configurar';
         document.getElementById('btnSalvar').classList.add('d-none');
         document.getElementById('btnAdicionarRota').classList.add('d-none');
-        document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.add('d-none'));
+        document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
         window.location.reload();
       } else {
-        abrirLogin();
+        document.getElementById('adminModal').style.display = 'flex';
       }
-    }
-
-    function abrirLogin() {
-      document.getElementById('adminModal').style.display = 'block';
-    }
-
-    function fecharLogin() {
-      document.getElementById('adminModal').style.display = 'none';
-      document.getElementById('emailAdmin').value = '';
-      document.getElementById('senhaAdmin').value = '';
     }
 
     function verificarSenha() {
@@ -142,128 +86,49 @@
       const senha = document.getElementById('senhaAdmin').value;
       firebase.auth().signInWithEmailAndPassword(email, senha)
         .then(() => {
+          document.getElementById('adminModal').style.display = 'none';
           habilitarEdicao();
-          fecharLogin();
         })
-        .catch(error => alert("Erro: " + error.message));
+        .catch(err => alert('Erro ao autenticar: ' + err.message));
     }
 
-    function imprimirModulos() {
-      window.print();
-    }
-
-    function exportarImagem() {
-      html2canvas(document.getElementById('rotaContainer')).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'rotas.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    }
-
-    function exportarXLS() {
-      let wb = XLSX.utils.book_new();
-      document.querySelectorAll('.rota-box').forEach((box, index) => {
-        const table = box.querySelector('table');
-        const ws = XLSX.utils.table_to_sheet(table);
-        XLSX.utils.book_append_sheet(wb, ws, `Rota ${index + 1}`);
-      });
-      XLSX.writeFile(wb, 'rotas.xlsx');
+    function fecharLogin() {
+      document.getElementById('adminModal').style.display = 'none';
     }
 
     function habilitarEdicao() {
-      document.querySelectorAll('td[contenteditable]').forEach(td => {
-        td.contentEditable = true;
-      });
-      document.querySelectorAll('.zona-select').forEach(select => {
-        select.disabled = false;
-      });
-      document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.remove('d-none'));
+      document.querySelectorAll('td[contenteditable]').forEach(td => td.contentEditable = true);
+      document.querySelectorAll('.zona-select').forEach(s => s.disabled = false);
+      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.remove('d-none'));
       document.getElementById('btnSalvar').classList.remove('d-none');
       document.getElementById('btnAdicionarRota').classList.remove('d-none');
-      document.getElementById('btnLogin').textContent = 'Sair';
-      alert('Modo de edição ativado. Agora você pode editar rotas, zonas e postos.');
+      document.getElementById('btnLogin').innerText = 'Sair';
     }
 
-    function editarPostos(box, tbody) {
-      const novo = prompt('Quantos postos deseja exibir nesta rota?');
-      if (!novo || isNaN(novo)) return;
-      const qtd = parseInt(novo);
-      tbody.innerHTML = '';
-      for (let i = 0; i < qtd; i++) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.textContent = `Posto ${i + 1}`;
-        td.setAttribute('contenteditable', 'true');
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-      }
-    }
+    function criarRota(container, numero, zona, postos = []) {
+      const col = document.createElement('div');
+      col.className = 'col-md-4';
 
-// substitui salvarLocal() para gerar e baixar um arquivo XML local
-		function salvarLocal() {
-		const rotas = [];
-  document.querySelectorAll('.rota-box').forEach((box, i) => {
-    const zona = box.querySelector('select').value;
-    const postos = [];
-    box.querySelectorAll('tbody tr').forEach(tr => {
-      const texto = tr.cells[0]?.innerText.replace('✖', '').trim();
-      if (texto) postos.push(texto);
-    });
-    if (zona && postos.length > 0) {
-      rotas.push({ rota: i + 1, zona, postos });
-    }
-  });
-
-  // cria XML em string
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rotas>\n';
-  rotas.forEach(r => {
-    xml += `  <rota zona=\"${r.zona}\">\n`;
-    r.postos.forEach(p => {
-      xml += `    <posto>${p}</posto>\n`;
-    });
-    xml += `  </rota>\n`;
-  });
-  xml += '</rotas>';
-
-  // cria e dispara download
-  const blob = new Blob([xml], { type: 'application/xml' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'rotas.xml';
-  link.click();
-  URL.revokeObjectURL(link.href);
-
-  alert('Arquivo rotas.xml gerado e baixado. Substitua no repositório para atualizar.');
-}
-
-
-    function carregarLocal() {
-      const container = document.getElementById('rotaContainer');
-      container.innerHTML = '';
-    }
-
-    function adicionarRota() {
-      const container = document.getElementById('rotaContainer');
-      const numero = document.querySelectorAll('.rota-box').length + 1;
-      criarRota(container, numero, zonas[0], []);
-    }
-
-    function criarRota(container, numero, zonaSelecionada, postos = []) {
-      const box = document.createElement('div');
-      box.className = 'rota-box';
+      const card = document.createElement('div');
+      card.className = 'p-3 border rounded position-relative';
 
       const titulo = document.createElement('h5');
+      titulo.className = 'text-center';
       titulo.textContent = `Rota ${numero}`;
+
+      const btnRemover = document.createElement('button');
+      btnRemover.textContent = 'X';
+      btnRemover.className = 'btn btn-sm btn-danger btn-remover-rota d-none';
+      btnRemover.onclick = () => col.remove();
 
       const select = document.createElement('select');
       select.className = 'form-select form-select-sm zona-select';
       zonas.forEach(z => {
-        const option = document.createElement('option');
-        option.value = z;
-        option.text = z;
-        if (z === zonaSelecionada) option.selected = true;
-        select.appendChild(option);
+        const opt = document.createElement('option');
+        opt.value = z;
+        opt.text = z;
+        if (z === zona) opt.selected = true;
+        select.appendChild(opt);
       });
       select.disabled = true;
 
@@ -271,56 +136,140 @@
       tabela.className = 'table table-sm table-bordered';
       const tbody = document.createElement('tbody');
 
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.textContent = 'Posto 1';
-      td.setAttribute('contenteditable', 'false');
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+      if (postos.length === 0) postos = ["Posto 1"];
+      postos.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = p;
+        td.setAttribute('contenteditable', 'false');
+
+        const btnX = document.createElement('span');
+        btnX.textContent = ' ✖';
+        btnX.className = 'btn-remover-posto d-none';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
+
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
 
       tabela.appendChild(tbody);
-      const btnEdit = document.createElement('button');
-      btnEdit.className = 'btn btn-sm btn-outline-primary btn-editar-postos d-none';
-      btnEdit.textContent = 'Quantidade';
-      btnEdit.onclick = () => editarPostos(box, tbody);
 
-      box.appendChild(titulo);
-      box.appendChild(select);
-      box.appendChild(tabela);
-      box.appendChild(btnEdit);
-      container.appendChild(box);
+      const btnQtd = document.createElement('button');
+      btnQtd.className = 'btn btn-sm btn-outline-primary btn-editar-postos d-none';
+      btnQtd.textContent = 'Quantidade';
+      btnQtd.onclick = () => editarPostos(tbody);
+
+      card.appendChild(titulo);
+      card.appendChild(btnRemover);
+      card.appendChild(select);
+      card.appendChild(tabela);
+      card.appendChild(btnQtd);
+      col.appendChild(card);
+      container.appendChild(col);
     }
 
-window.onload = carregarXMLDoGitHub;
+    function editarPostos(tbody) {
+      const qtd = parseInt(prompt("Quantos postos deseja?"));
+      if (isNaN(qtd) || qtd < 1) return;
+      tbody.innerHTML = '';
+      for (let i = 0; i < qtd; i++) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = `Posto ${i + 1}`;
+        td.setAttribute('contenteditable', 'true');
 
-async function carregarXMLDoGitHub() {
-  const url = "https://tecnicomags.github.io/controle-rotas/data/rotas.xml";
+        const btnX = document.createElement('span');
+        btnX.textContent = ' ✖';
+        btnX.className = 'btn-remover-posto';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Erro ao baixar XML');
-    const textoXML = await response.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(textoXML, "text/xml");
-
-    const container = document.getElementById('rotaContainer');
-    container.innerHTML = '';
-
-    const rotas = xmlDoc.getElementsByTagName("rota");
-    for (let i = 0; i < rotas.length; i++) {
-      const zona = rotas[i].getAttribute("zona") || 'Zona Norte';
-      const postos = Array.from(rotas[i].getElementsByTagName("posto")).map(p => p.textContent);
-      criarRota(container, i + 1, zona, postos);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
     }
-  } catch (err) {
-    console.warn("Arquivo XML não encontrado. Importe novos dados ou crie uma nova tabela de rotas.");
-  }
-}
 
+    function adicionarRota() {
+      const container = document.getElementById('rotaContainer');
+      const numero = document.querySelectorAll('.rota-box').length + 1;
+      criarRota(container, numero, zonas[0]);
+    }
 
-  window.onload = carregarXMLDoFirebase;
-</script>
+    function salvarLocal() {
+      const rotas = [];
+      document.querySelectorAll('.col-md-4').forEach((col, i) => {
+        const zona = col.querySelector('select').value;
+        const postos = Array.from(col.querySelectorAll('tbody tr')).map(tr => tr.cells[0].innerText.replace('✖', '').trim());
+        rotas.push({ rota: i + 1, zona, postos });
+      });
 
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rotas>\n';
+      rotas.forEach(r => {
+        xml += `  <rota zona=\"${r.zona}\">\n`;
+        r.postos.forEach(p => {
+          xml += `    <posto>${p}</posto>\n`;
+        });
+        xml += `  </rota>\n`;
+      });
+      xml += '</rotas>';
+
+      const blob = new Blob([xml], { type: 'application/xml' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'rotas.xml';
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      alert('Arquivo rotas.xml gerado e baixado. Substitua no repositório para atualizar.');
+    }
+
+    function exportarImagem() {
+      html2canvas(document.getElementById('rotaContainer')).then(canvas => {
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL();
+        a.download = 'rotas.png';
+        a.click();
+      });
+    }
+
+    function exportarXLS() {
+      const wb = XLSX.utils.book_new();
+      document.querySelectorAll('.table').forEach((table, i) => {
+        const ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, `Rota ${i + 1}`);
+      });
+      XLSX.writeFile(wb, 'rotas.xlsx');
+    }
+
+    function imprimirModulos() {
+      window.print();
+    }
+
+    async function carregarXMLDoGitHub() {
+      const url = "https://tecnicomags.github.io/controle-rotas/data/rotas.xml";
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Erro ao baixar XML');
+        const textoXML = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(textoXML, "text/xml");
+
+        const container = document.getElementById('rotaContainer');
+        container.innerHTML = '';
+
+        const rotas = xmlDoc.getElementsByTagName("rota");
+        for (let i = 0; i < rotas.length; i++) {
+          const zona = rotas[i].getAttribute("zona") || 'Zona Norte';
+          const postos = Array.from(rotas[i].getElementsByTagName("posto")).map(p => p.textContent);
+          criarRota(container, i + 1, zona, postos);
+        }
+      } catch (err) {
+        console.warn("Arquivo XML não encontrado. Importe novos dados ou crie uma nova tabela de rotas.");
+      }
+    }
+
+    window.addEventListener("load", carregarXMLDoGitHub);
   </script>
 </body>
 </html>
