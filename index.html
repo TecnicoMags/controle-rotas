@@ -116,6 +116,7 @@
         firebase.auth().signOut();
         document.getElementById('btnLogin').textContent = 'Editar / Configurar';
         document.getElementById('btnSalvar').classList.add('d-none');
+        document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.add('d-none'));
         window.location.reload();
       } else {
         abrirLogin();
@@ -173,6 +174,7 @@
       document.querySelectorAll('.zona-select').forEach(select => {
         select.disabled = false;
       });
+      document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.remove('d-none'));
       document.getElementById('btnSalvar').classList.remove('d-none');
       document.getElementById('btnLogin').textContent = 'Sair';
       alert('Modo de edição ativado. Agora você pode editar rotas, zonas e postos.');
@@ -262,8 +264,8 @@
 
       tabela.appendChild(tbody);
       const btnEdit = document.createElement('button');
-      btnEdit.className = 'btn btn-sm btn-outline-primary btn-editar-postos';
-      btnEdit.textContent = 'Editar quantidade de postos';
+      btnEdit.className = 'btn btn-sm btn-outline-primary btn-editar-postos d-none';
+      btnEdit.textContent = 'Quantidade';
       btnEdit.onclick = () => editarPostos(box, tbody);
 
       box.appendChild(titulo);
