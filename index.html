@@ -64,6 +64,12 @@
       font-size: 0.8rem;
       padding: 2px 5px;
     }
+    .btn-remover-posto {
+      float: right;
+      margin-left: 10px;
+      color: red;
+      cursor: pointer;
+    }
     @media print {
       body *:not(#rotaContainer):not(#rotaContainer *) {
         display: none;
@@ -101,7 +107,7 @@
     </div>
   </div>
 
-  <!-- Firebase: configuração e inicialização -->
+  <!-- Firebase -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDZXCaGEnBd8BujXKcrruSVFzvZDbtGToM",
@@ -116,7 +122,7 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Código principal da aplicação -->
+  <!-- Script principal -->
   <script>
     const zonas = ['Zona Norte', 'Zona Sul', 'Zona Oeste', 'Baixada', 'Região Serrana'];
 
@@ -170,7 +176,7 @@
     }
 
     function exportarXLS() {
-      let wb = XLSX.utils.book_new();
+      const wb = XLSX.utils.book_new();
       document.querySelectorAll('.rota-box').forEach((box, index) => {
         const table = box.querySelector('table');
         const ws = XLSX.utils.table_to_sheet(table);
@@ -198,6 +204,11 @@
         const td = document.createElement('td');
         td.textContent = `Posto ${i + 1}`;
         td.setAttribute('contenteditable', 'true');
+        const btnX = document.createElement('span');
+        btnX.textContent = '✖';
+        btnX.className = 'btn-remover-posto';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
         tr.appendChild(td);
         tbody.appendChild(tr);
       }
@@ -216,16 +227,19 @@
         const zona = box.querySelector('select').value;
         const postos = [];
         box.querySelectorAll('tbody tr').forEach(tr => {
-          postos.push(tr.cells[0].innerText);
+          postos.push(tr.cells[0].innerText.replace('✖', '').trim());
         });
         rotas.push({ rota: i + 1, zona, postos });
       });
       localStorage.setItem('dadosRotas', JSON.stringify(rotas));
+      alert('Alterações salvas localmente.');
     }
 
     function carregarLocal() {
       const container = document.getElementById('rotaContainer');
       container.innerHTML = '';
+      const dados = JSON.parse(localStorage.getItem('dadosRotas')) || [];
+      dados.forEach((rota, i) => criarRota(container, i + 1, rota.zona, rota.postos));
     }
 
     function adicionarRota() {
@@ -261,12 +275,21 @@
       tabela.className = 'table table-sm table-bordered';
       const tbody = document.createElement('tbody');
 
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.textContent = 'Posto 1';
-      td.setAttribute('contenteditable', 'false');
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+      if (postos.length === 0) postos = ['Posto 1'];
+      postos.forEach((nome, idx) => {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = nome;
+        td.setAttribute('contenteditable', 'false');
+        const btnX = document.createElement('span');
+        btnX.textContent = '✖';
+        btnX.className = 'btn-remover-posto';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+
       tabela.appendChild(tbody);
 
       const btnEdit = document.createElement('button');
