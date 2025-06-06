@@ -200,20 +200,43 @@
       }
     }
 
-    function salvarLocal() {
-		const rotas = [];
-		document.querySelectorAll('.rota-box').forEach((box, i) => {
-			const zona = box.querySelector('select').value;
-			const postos = [];
-			box.querySelectorAll('tbody tr').forEach(tr => {
-			postos.push(tr.cells[0].innerText.replace('✖', '').trim());
-			});
-			rotas.push({ rota: i + 1, zona, postos });
-		});
-		console.log(JSON.stringify(rotas, null, 2));
-		localStorage.setItem('dadosRotas', JSON.stringify(rotas));
-		alert("Alterações salvas com sucesso!"); // Alerta de COnfirmação de salvamento de alterações
+// substitui salvarLocal() para gerar e baixar um arquivo XML local
+function salvarLocal() {
+  const rotas = [];
+  document.querySelectorAll('.rota-box').forEach((box, i) => {
+    const zona = box.querySelector('select').value;
+    const postos = [];
+    box.querySelectorAll('tbody tr').forEach(tr => {
+      const texto = tr.cells[0]?.innerText.replace('✖', '').trim();
+      if (texto) postos.push(texto);
+    });
+    if (zona && postos.length > 0) {
+      rotas.push({ rota: i + 1, zona, postos });
     }
+  });
+
+  // cria XML em string
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rotas>\n';
+  rotas.forEach(r => {
+    xml += `  <rota zona=\"${r.zona}\">\n`;
+    r.postos.forEach(p => {
+      xml += `    <posto>${p}</posto>\n`;
+    });
+    xml += `  </rota>\n`;
+  });
+  xml += '</rotas>';
+
+  // cria e dispara download
+  const blob = new Blob([xml], { type: 'application/xml' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'rotas.xml';
+  link.click();
+  URL.revokeObjectURL(link.href);
+
+  alert('Arquivo rotas.xml gerado e baixado. Substitua no repositório para atualizar.');
+}
+
 
     function carregarLocal() {
       const container = document.getElementById('rotaContainer');
