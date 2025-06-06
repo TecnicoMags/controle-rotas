@@ -210,8 +210,9 @@
 			});
 			rotas.push({ rota: i + 1, zona, postos });
 		});
+		console.log(JSON.stringify(rotas, null, 2));
 		localStorage.setItem('dadosRotas', JSON.stringify(rotas));
-		alert("Alterações salvas com sucesso!"); // <-- insira aqui
+		alert("Alterações salvas com sucesso!"); // Alerta de COnfirmação de salvamento de alterações
     }
 
     function carregarLocal() {
