@@ -53,14 +53,10 @@
       <table id="tabelaRotas" class="table table-bordered">
         <thead class="table-light">
           <tr>
-            <th>Rota</th>
-            <th>Zona</th>
             <th>Postos</th>
-            <th>Segunda</th>
-            <th>Terça</th>
-            <th>Quarta</th>
-            <th>Quinta</th>
-            <th>Sexta</th>
+            <th>Rota 1<br><small>Zona A</small></th>
+            <th>Rota 2<br><small>Zona B</small></th>
+            <th>Rota 3<br><small>Zona C</small></th>
           </tr>
         </thead>
         <tbody>
@@ -81,8 +77,8 @@
     </div>
   </div>
 
+  <!-- Firebase: configuração e inicialização -->
   <script>
-    // Firebase config atualizado para "web-rotas-mags"
     const firebaseConfig = {
       apiKey: "AIzaSyDZXCaGEnBd8BujXKcrruSVFzvZDbtGToM",
       authDomain: "web-rotas-mags.firebaseapp.com",
@@ -92,8 +88,14 @@
       appId: "1:59148195031:web:706861689db1bb7ef10c92",
       measurementId: "G-18RRBK77FZ"
     };
-    firebase.initializeApp(firebaseConfig);
 
+    // Firebase global para navegadores
+    const firebase = window.firebase;
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Código principal da aplicação -->
+  <script>
     function abrirLogin() {
       document.getElementById('adminModal').style.display = 'block';
     }
@@ -168,10 +170,6 @@
             <td>${linha[1]}</td>
             <td>${linha[2]}</td>
             <td>${linha[3]}</td>
-            <td>${linha[4]}</td>
-            <td>${linha[5]}</td>
-            <td>${linha[6]}</td>
-            <td>${linha[7]}</td>
           </tr>`;
           tbody.innerHTML += row;
         });
