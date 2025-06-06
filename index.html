@@ -37,6 +37,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
+      justify-content: center;
     }
     .rota-box {
       border: 1px solid #ccc;
@@ -46,6 +47,7 @@
     }
     .rota-box h5 {
       margin-bottom: 10px;
+      text-align: center;
     }
     .zona-select {
       margin-bottom: 10px;
@@ -63,7 +65,7 @@
 </head>
 <body>
   <div class="container">
-    <h2 class="mb-4">Lista de Rotas - Visualização</h2>
+    <h2 class="mb-4 text-center">Lista de Rotas - Visualização</h2>
 
     <!-- Botões Gerais -->
     <div class="mb-3" id="botoesContainer">
@@ -71,6 +73,7 @@
       <button class="btn btn-secondary me-2" onclick="imprimirModulos()">Imprimir</button>
       <button class="btn btn-secondary me-2" onclick="exportarImagem()">Exportar como Imagem</button>
       <button class="btn btn-success me-2 d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
+      <button class="btn btn-info me-2 d-none" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
       <button class="btn btn-primary float-end" onclick="alternarLogin()" id="btnLogin">Editar / Configurar</button>
     </div>
 
@@ -116,6 +119,7 @@
         firebase.auth().signOut();
         document.getElementById('btnLogin').textContent = 'Editar / Configurar';
         document.getElementById('btnSalvar').classList.add('d-none');
+        document.getElementById('btnAdicionarRota').classList.add('d-none');
         document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.add('d-none'));
         window.location.reload();
       } else {
@@ -176,6 +180,7 @@
       });
       document.querySelectorAll('.btn-editar-postos').forEach(btn => btn.classList.remove('d-none'));
       document.getElementById('btnSalvar').classList.remove('d-none');
+      document.getElementById('btnAdicionarRota').classList.remove('d-none');
       document.getElementById('btnLogin').textContent = 'Sair';
       alert('Modo de edição ativado. Agora você pode editar rotas, zonas e postos.');
     }
@@ -211,13 +216,13 @@
 
     function carregarLocal() {
       const container = document.getElementById('rotaContainer');
-      const dados = JSON.parse(localStorage.getItem('dadosRotas')) || [];
       container.innerHTML = '';
-      if (dados.length === 0) {
-        for (let i = 1; i <= 3; i++) criarRota(container, i, zonas[0]);
-      } else {
-        dados.forEach((rota, i) => criarRota(container, rota.rota, rota.zona, rota.postos));
-      }
+    }
+
+    function adicionarRota() {
+      const container = document.getElementById('rotaContainer');
+      const numero = document.querySelectorAll('.rota-box').length + 1;
+      criarRota(container, numero, zonas[0], []);
     }
 
     function criarRota(container, numero, zonaSelecionada, postos = []) {
@@ -242,25 +247,12 @@
       tabela.className = 'table table-sm table-bordered';
       const tbody = document.createElement('tbody');
 
-      if (postos.length === 0) {
-        for (let i = 0; i < 5; i++) {
-          const tr = document.createElement('tr');
-          const td = document.createElement('td');
-          td.textContent = `Posto ${i + 1}`;
-          td.setAttribute('contenteditable', 'false');
-          tr.appendChild(td);
-          tbody.appendChild(tr);
-        }
-      } else {
-        postos.forEach(nome => {
-          const tr = document.createElement('tr');
-          const td = document.createElement('td');
-          td.textContent = nome;
-          td.setAttribute('contenteditable', 'false');
-          tr.appendChild(td);
-          tbody.appendChild(tr);
-        });
-      }
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.textContent = 'Posto 1';
+      td.setAttribute('contenteditable', 'false');
+      tr.appendChild(td);
+      tbody.appendChild(tr);
 
       tabela.appendChild(tbody);
       const btnEdit = document.createElement('button');
