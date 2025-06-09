@@ -1,0 +1,13 @@
+.btn-remover-rota {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.btn-remover-posto {
+  float: right;
+  color: red;
+  cursor: pointer;
+}
+td[contenteditable] {
+  background: #ffffcc; 
+}
