@@ -23,13 +23,15 @@
     <div id="rotaContainer" class="row g-3"></div>
   </div>
 
-  <div id="adminModal" class="position-fixed top-0 end-0 bg-white border shadow p-4" style="width: 300px; height: 100vh; display: none; z-index: 1050;">
-  <h5>Login Administrativo</h5>
-  <input type="email" id="emailAdmin" class="form-control mb-2" placeholder="E-mail">
-  <input type="password" id="senhaAdmin" class="form-control mb-3" placeholder="Senha">
-  <button class="btn btn-primary w-100 mb-2" onclick="verificarSenha()">Entrar</button>
-  <button class="btn btn-secondary w-100" onclick="fecharLogin()">Cancelar</button>
-</div>
+  <div id="adminModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75" style="display:none">
+    <div class="bg-white p-4 rounded">
+      <h5>Login Administrativo</h5>
+      <input type="email" id="emailAdmin" class="form-control mb-2" placeholder="E-mail">
+      <input type="password" id="senhaAdmin" class="form-control mb-3" placeholder="Senha">
+      <button class="btn btn-primary w-100 mb-2" onclick="verificarSenha()">Entrar</button>
+      <button class="btn btn-secondary w-100" onclick="fecharLogin()">Cancelar</button>
+    </div>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
