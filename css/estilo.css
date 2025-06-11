@@ -11,3 +11,26 @@
 td[contenteditable] {
   background: #ffffcc; 
 }
+#adminModal {
+  transition: transform 0.3s ease;
+  transform: translateX(100%);
+}
+
+#adminModal.ativo {
+  display: block;
+  transform: translateX(0);
+}
+
+#adminModal h5 {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+#adminModal input::placeholder {
+  color: #aaa;
+}
+
+#adminModal .form-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
