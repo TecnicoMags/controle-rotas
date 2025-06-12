@@ -2,7 +2,7 @@
 const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serrana"];
 
 // Funções de autenticação
-function alternarLogin() {
+/*function alternarLogin() {
   const user = firebase.auth().currentUser;
   if (user) {
     firebase.auth().signOut().then(() => {
@@ -11,6 +11,18 @@ function alternarLogin() {
       document.getElementById('btnAdicionarRota').classList.add('d-none');
       document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
     });
+  } else {
+    document.getElementById('adminModal').style.display = 'flex';
+  }
+}*/
+
+function alternarLogin() {
+  const logado = document.getElementById('btnLogin').innerText === 'Sair';
+  if (logado) {
+    document.getElementById('btnLogin').innerText = 'Login';
+    document.getElementById('btnSalvar').classList.add('d-none');
+    document.getElementById('btnAdicionarRota').classList.add('d-none');
+    document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
   } else {
     document.getElementById('adminModal').style.display = 'flex';
   }
