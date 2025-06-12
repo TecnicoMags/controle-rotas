@@ -179,8 +179,20 @@ function exportarXLS() {
   XLSX.writeFile(wb, 'rotas.xlsx');
 }
 
-function imprimirModulos() {
-  document.getElementById('rotaContainer').print();
+function imprimirRotas() {
+    const originalContent = document.body.innerHTML;
+    const rotasContent = document.getElementById('rotaContainer').outerHTML;
+    
+    document.body.innerHTML = `
+        <h2 class="text-center mb-4">Controle de Rotas - Relatório</h2>
+        ${rotasContent}
+        <div class="text-center mt-4">
+            <small>Impresso em ${new Date().toLocaleDateString()}</small>
+        </div>
+    `;
+    
+    window.print();
+    document.body.innerHTML = originalContent;
 }
 
 // Função para carregar dados iniciais
