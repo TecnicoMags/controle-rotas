@@ -180,7 +180,7 @@ function exportarXLS() {
 }
 
 function imprimirModulos() {
-  window.print();
+  document.getElementById('rotaContainer').print();
 }
 
 // Função para carregar dados iniciais
