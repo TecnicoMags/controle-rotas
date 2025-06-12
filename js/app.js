@@ -16,7 +16,7 @@ function alternarLogin() {
   }
 }
 
-function verificarSenha() {
+/*function verificarSenha() {
   const email = document.getElementById('emailAdmin').value;
   const senha = document.getElementById('senhaAdmin').value;
   firebase.auth().signInWithEmailAndPassword(email, senha)
@@ -25,6 +25,19 @@ function verificarSenha() {
       habilitarEdicao();
     })
     .catch(err => alert('Erro ao autenticar: ' + err.message));
+}*/
+
+function verificarSenha() {
+  const email = document.getElementById('emailAdmin').value.trim();
+  const senha = document.getElementById('senhaAdmin').value.trim();
+
+  // Login simples com e-mail e senha fixos
+  if (email === 'admin@grupomags.com.br' && senha === 'Mags@631a') {
+    document.getElementById('adminModal').style.display = 'none';
+    habilitarEdicao();
+  } else {
+    alert('E-mail ou senha incorretos.'); //LOGIN OFF PRA SER REMOVIDO DEPOIS
+  }
 }
 
 function fecharLogin() {
