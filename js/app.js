@@ -1,14 +1,16 @@
+// Constantes globais
 const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serrana"];
 
+// Funções de autenticação
 function alternarLogin() {
   const user = firebase.auth().currentUser;
   if (user) {
-    firebase.auth().signOut();
-    document.getElementById('btnLogin').innerText = 'Editar / Configurar';
-    document.getElementById('btnSalvar').classList.add('d-none');
-    document.getElementById('btnAdicionarRota').classList.add('d-none');
-    document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
-    window.location.reload();
+    firebase.auth().signOut().then(() => {
+      document.getElementById('btnLogin').innerText = 'Login';
+      document.getElementById('btnSalvar').classList.add('d-none');
+      document.getElementById('btnAdicionarRota').classList.add('d-none');
+      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
+    });
   } else {
     document.getElementById('adminModal').style.display = 'flex';
   }
@@ -38,9 +40,10 @@ function habilitarEdicao() {
   document.getElementById('btnLogin').innerText = 'Sair';
 }
 
+// Funções de manipulação de rotas
 function criarRota(container, numero, zona, postos = []) {
   const col = document.createElement('div');
-  col.className = 'col-md-4 rota-box';
+  col.className = 'col-md-4';
 
   const card = document.createElement('div');
   card.className = 'p-3 border rounded position-relative';
@@ -70,7 +73,7 @@ function criarRota(container, numero, zona, postos = []) {
   const tbody = document.createElement('tbody');
 
   if (postos.length === 0) postos = ["Posto 1"];
-  postos.forEach((p) => {
+  postos.forEach((p, idx) => {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.textContent = p;
@@ -125,10 +128,11 @@ function editarPostos(tbody) {
 
 function adicionarRota() {
   const container = document.getElementById('rotaContainer');
-  const numero = document.querySelectorAll('.rota-box').length + 1;
+  const numero = document.querySelectorAll('.col-md-4').length + 1;
   criarRota(container, numero, zonas[0]);
 }
 
+// Funções de exportação
 function salvarLocal() {
   const rotas = [];
   document.querySelectorAll('.col-md-4').forEach((col, i) => {
@@ -139,7 +143,7 @@ function salvarLocal() {
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rotas>\n';
   rotas.forEach(r => {
-    xml += `  <rota zona="${r.zona}">\n`;
+    xml += `  <rota zona=\"${r.zona}\">\n`;
     r.postos.forEach(p => {
       xml += `    <posto>${p}</posto>\n`;
     });
@@ -179,6 +183,7 @@ function imprimirModulos() {
   window.print();
 }
 
+// Função para carregar dados iniciais
 async function carregarXMLDoGitHub() {
   const url = "https://tecnicomags.github.io/controle-rotas/data/rotas.xml";
   try {
@@ -202,4 +207,8 @@ async function carregarXMLDoGitHub() {
   }
 }
 
-window.addEventListener("load", carregarXMLDoGitHub);
+// Inicialização da aplicação
+window.addEventListener("load", () => {
+  carregarXMLDoGitHub();
+  document.getElementById('adminModal').style.display = 'none';
+});
