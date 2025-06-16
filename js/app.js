@@ -24,9 +24,11 @@ function alternarLogin() {
     document.getElementById('btnAdicionarRota').classList.add('d-none');
     document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
   } else {
+    // Aqui está o ponto mais importante:
     document.getElementById('adminModal').style.display = 'flex';
   }
 }
+
 
 /*function verificarSenha() {
   const email = document.getElementById('emailAdmin').value;
@@ -222,7 +224,10 @@ function imprimirRotas() {
 
 // Função para carregar dados iniciais
 async function carregarXMLDoGitHub() {
-  const url = "https://tecnicomags.github.io/controle-rotas/data/rotas.xml";
+  const baseURL = location.hostname.includes("github.io")
+  ? "https://tecnicomags.github.io/controle-rotas/"
+  : "./";
+	const url = baseURL + "data/rotas.xml";
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Erro ao baixar XML');
@@ -242,6 +247,33 @@ async function carregarXMLDoGitHub() {
   } catch (err) {
     console.warn("Arquivo XML não encontrado. Importe novos dados ou crie uma nova tabela de rotas.");
   }
+}
+
+//ler e atualizar por input o xml
+function importarXMLLocal() {
+  const input = document.getElementById('xmlInput');
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const xmlString = e.target.result;
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+    const container = document.getElementById('rotaContainer');
+    container.innerHTML = '';
+
+    const rotas = xmlDoc.getElementsByTagName("rota");
+    for (let i = 0; i < rotas.length; i++) {
+      const zona = rotas[i].getAttribute("zona") || 'Zona Norte';
+      const postos = Array.from(rotas[i].getElementsByTagName("posto")).map(p => p.textContent);
+      criarRota(container, i + 1, zona, postos);
+    }
+
+    alert("Dados carregados com sucesso.");
+  };
+  reader.readAsText(file);
 }
 
 // Inicialização da aplicação
