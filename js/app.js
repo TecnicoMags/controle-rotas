@@ -11,7 +11,9 @@ function alternarLogin() {
       document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
     });
   } else {
-    document.getElementById('adminModal').style.display = 'flex';
+    // Mostra o modal usando Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById('adminModal'));
+    modal.show();
   }
 }
 
@@ -20,14 +22,18 @@ function verificarSenha() {
   const senha = document.getElementById('senhaAdmin').value;
   firebase.auth().signInWithEmailAndPassword(email, senha)
     .then(() => {
-      document.getElementById('adminModal').style.display = 'none';
+      // Esconde o modal usando Bootstrap
+      const modal = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
+      modal.hide();
       habilitarEdicao();
     })
     .catch(err => alert('Erro ao autenticar: ' + err.message));
 }
 
 function fecharLogin() {
-  document.getElementById('adminModal').style.display = 'none';
+  // Esconde o modal usando Bootstrap
+  const modal = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
+  modal.hide();
 }
 
 function habilitarEdicao() {
