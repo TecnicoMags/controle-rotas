@@ -225,9 +225,10 @@ function imprimirRotas() {
 // Função para carregar dados iniciais
 async function carregarXMLDoGitHub() {
   const baseURL = location.hostname.includes("github.io")
-  ? "https://tecnicomags.github.io/controle-rotas/"
-  : "./";
-	const url = baseURL + "data/rotas.xml";
+    ? "https://tecnicomags.github.io/controle-rotas/"
+    : "";
+  const url = baseURL + "data/rotas.xml";
+
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Erro ao baixar XML');
