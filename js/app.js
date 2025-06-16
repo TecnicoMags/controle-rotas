@@ -2,7 +2,7 @@
 const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serrana"];
 
 // Funções de autenticação
-/*function alternarLogin() {
+function alternarLogin() {
   const user = firebase.auth().currentUser;
   if (user) {
     firebase.auth().signOut().then(() => {
@@ -14,9 +14,9 @@ const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serra
   } else {
     document.getElementById('adminModal').style.display = 'flex';
   }
-}*/
+}
 
-function alternarLogin() {
+/*function alternarLogin() {
   const logado = document.getElementById('btnLogin').innerText === 'Sair';
   if (logado) {
     document.getElementById('btnLogin').innerText = 'Login';
@@ -27,10 +27,10 @@ function alternarLogin() {
     // Aqui está o ponto mais importante:
     document.getElementById('adminModal').style.display = 'flex';
   }
-}
+}*/
 
 
-/*function verificarSenha() {
+function verificarSenha() {
   const email = document.getElementById('emailAdmin').value;
   const senha = document.getElementById('senhaAdmin').value;
   firebase.auth().signInWithEmailAndPassword(email, senha)
@@ -39,9 +39,9 @@ function alternarLogin() {
       habilitarEdicao();
     })
     .catch(err => alert('Erro ao autenticar: ' + err.message));
-}*/
+}
 
-function verificarSenha() {
+/*function verificarSenha() {
   const email = document.getElementById('emailAdmin').value.trim();
   const senha = document.getElementById('senhaAdmin').value.trim();
 
@@ -52,7 +52,7 @@ function verificarSenha() {
   } else {
     alert('E-mail ou senha incorretos.'); //LOGIN OFF PRA SER REMOVIDO DEPOIS
   }
-}
+}*/
 
 function fecharLogin() {
   document.getElementById('adminModal').style.display = 'none';
