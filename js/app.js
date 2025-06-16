@@ -6,29 +6,14 @@ function alternarLogin() {
   const user = firebase.auth().currentUser;
   if (user) {
     firebase.auth().signOut().then(() => {
-      document.getElementById('btnLogin').innerText = 'Login';
-      document.getElementById('btnSalvar').classList.add('d-none');
-      document.getElementById('btnAdicionarRota').classList.add('d-none');
+      document.getElementById('btnLogin').innerText = 'Entrar';
+      document.getElementById('painelAdmin').classList.add('d-none');
       document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
     });
   } else {
     document.getElementById('adminModal').style.display = 'flex';
   }
 }
-
-/*function alternarLogin() {
-  const logado = document.getElementById('btnLogin').innerText === 'Sair';
-  if (logado) {
-    document.getElementById('btnLogin').innerText = 'Login';
-    document.getElementById('btnSalvar').classList.add('d-none');
-    document.getElementById('btnAdicionarRota').classList.add('d-none');
-    document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
-  } else {
-    // Aqui está o ponto mais importante:
-    document.getElementById('adminModal').style.display = 'flex';
-  }
-}*/
-
 
 function verificarSenha() {
   const email = document.getElementById('emailAdmin').value;
@@ -41,19 +26,6 @@ function verificarSenha() {
     .catch(err => alert('Erro ao autenticar: ' + err.message));
 }
 
-/*function verificarSenha() {
-  const email = document.getElementById('emailAdmin').value.trim();
-  const senha = document.getElementById('senhaAdmin').value.trim();
-
-  // Login simples com e-mail e senha fixos
-  if (email === 'admin@grupomags.com.br' && senha === 'Mags@631a') {
-    document.getElementById('adminModal').style.display = 'none';
-    habilitarEdicao();
-  } else {
-    alert('E-mail ou senha incorretos.'); //LOGIN OFF PRA SER REMOVIDO DEPOIS
-  }
-}*/
-
 function fecharLogin() {
   document.getElementById('adminModal').style.display = 'none';
 }
@@ -62,9 +34,8 @@ function habilitarEdicao() {
   document.querySelectorAll('td[contenteditable]').forEach(td => td.contentEditable = true);
   document.querySelectorAll('.zona-select').forEach(s => s.disabled = false);
   document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.remove('d-none'));
-  document.getElementById('btnSalvar').classList.remove('d-none');
-  document.getElementById('btnAdicionarRota').classList.remove('d-none');
   document.getElementById('btnLogin').innerText = 'Sair';
+  document.getElementById('painelAdmin').classList.remove('d-none');
 }
 
 // Funções de manipulação de rotas
@@ -154,6 +125,10 @@ function editarPostos(tbody) {
 }
 
 function adicionarRota() {
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
   const container = document.getElementById('rotaContainer');
   const numero = document.querySelectorAll('.col-md-4').length + 1;
   criarRota(container, numero, zonas[0]);
@@ -161,6 +136,11 @@ function adicionarRota() {
 
 // Funções de exportação
 function salvarLocal() {
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
+
   const rotas = [];
   document.querySelectorAll('.col-md-4').forEach((col, i) => {
     const zona = col.querySelector('select').value;
@@ -189,6 +169,11 @@ function salvarLocal() {
 }
 
 function exportarImagem() {
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
+
   html2canvas(document.getElementById('rotaContainer')).then(canvas => {
     const a = document.createElement('a');
     a.href = canvas.toDataURL();
@@ -198,31 +183,50 @@ function exportarImagem() {
 }
 
 function exportarXLS() {
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
+
   const wb = XLSX.utils.book_new();
+  const data = [];
+
   document.querySelectorAll('.table').forEach((table, i) => {
-    const ws = XLSX.utils.table_to_sheet(table);
-    XLSX.utils.book_append_sheet(wb, ws, `Rota ${i + 1}`);
+    data.push([`Rota ${i + 1}`]);
+    const rows = Array.from(table.querySelectorAll('tr')).map(tr =>
+      [tr.innerText.replace('✖', '').trim()]
+    );
+    data.push(...rows);
+    data.push(['']);
   });
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, 'Rotas');
   XLSX.writeFile(wb, 'rotas.xlsx');
 }
 
 function imprimirRotas() {
-    const originalContent = document.body.innerHTML;
-    const rotasContent = document.getElementById('rotaContainer').outerHTML;
-    
-    document.body.innerHTML = `
-        <h2 class="text-center mb-4">Controle de Rotas - Relatório</h2>
-        ${rotasContent}
-        <div class="text-center mt-4">
-            <small>Impresso em ${new Date().toLocaleDateString()}</small>
-        </div>
-    `;
-    
-    window.print();
-    document.body.innerHTML = originalContent;
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
+
+  const originalContent = document.body.innerHTML;
+  const rotasContent = document.getElementById('rotaContainer').outerHTML;
+
+  document.body.innerHTML = `
+    <h2 class="text-center mb-4">Controle de Rotas - Relatório</h2>
+    ${rotasContent}
+    <div class="text-center mt-4">
+      <small>Impresso em ${new Date().toLocaleDateString()}</small>
+    </div>
+  `;
+
+  window.print();
+  document.body.innerHTML = originalContent;
 }
 
-// Função para carregar dados iniciais
+// Carrega XML inicial
 async function carregarXMLDoGitHub() {
   const baseURL = location.hostname.includes("github.io")
     ? "https://tecnicomags.github.io/controle-rotas/"
@@ -250,8 +254,12 @@ async function carregarXMLDoGitHub() {
   }
 }
 
-//ler e atualizar por input o xml
 function importarXMLLocal() {
+  if (document.getElementById('btnLogin').innerText !== 'Sair') {
+    alert("Você precisa estar logado como administrador.");
+    return;
+  }
+
   const input = document.getElementById('xmlInput');
   const file = input.files[0];
   if (!file) return;
@@ -277,7 +285,7 @@ function importarXMLLocal() {
   reader.readAsText(file);
 }
 
-// Inicialização da aplicação
+// Inicialização
 window.addEventListener("load", () => {
   carregarXMLDoGitHub();
   document.getElementById('adminModal').style.display = 'none';
