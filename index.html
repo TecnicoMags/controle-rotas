@@ -10,23 +10,30 @@
 <body>
   <div class="container py-4">
     <h2 class="text-center">Controle de Rotas</h2>
-    <div class="d-flex justify-content-between mb-3">
-      <div>
-		<! -- botoes de exportação -- >
-        <button class="btn btn-secondary" onclick="exportarXLS()">Exportar Excel</button>
-        <button class="btn btn-secondary" onclick="exportarImagem()">Exportar Imagem</button>
-        <button class="btn btn-secondary" onclick="imprimirRotas()">Imprimir</button>
-		<input type="file" id="xmlInput" accept=".xml" style="display: none;" onchange="importarXMLLocal()">
-		<button class="btn btn-warning" onclick="document.getElementById('xmlInput').click()">Importar XML</button>
-		<! -- botoes de edição -- >
-        <button class="btn btn-success d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
-        <button class="btn btn-info d-none" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
-      </div>
-      <button class="btn btn-primary" onclick="alternarLogin()" id="btnLogin">Login</button>
+
+    <!-- Botão de login visível inicialmente -->
+    <div class="text-end mb-3">
+      <button class="btn btn-primary" onclick="alternarLogin()" id="btnLogin">Entrar</button>
     </div>
+
+    <!-- Painel de botões (exibe apenas após login) -->
+    <div id="painelAdmin" class="d-none">
+      <div class="d-flex flex-column align-items-center gap-2 my-4">
+        <button class="btn btn-secondary w-100" onclick="exportarXLS()">Exportar Excel</button>
+        <button class="btn btn-secondary w-100" onclick="exportarImagem()">Exportar Imagem</button>
+        <button class="btn btn-secondary w-100" onclick="imprimirRotas()">Imprimir</button>
+        <input type="file" id="xmlInput" accept=".xml" style="display: none;" onchange="importarXMLLocal()">
+        <button class="btn btn-warning w-100" onclick="document.getElementById('xmlInput').click()">Importar XML</button>
+        <button class="btn btn-success w-100" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
+        <button class="btn btn-info w-100" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
+      </div>
+    </div>
+
+    <!-- Área das rotas -->
     <div id="rotaContainer" class="row g-3"></div>
   </div>
 
+  <!-- Modal de login -->
   <div id="adminModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75" style="display: none; z-index: 1050;">
     <div class="bg-white p-4 rounded shadow" style="width: 320px;">
       <h5 class="mb-4">Login Administrativo</h5>
