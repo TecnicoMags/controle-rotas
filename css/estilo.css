@@ -34,3 +34,43 @@ td[contenteditable] {
   font-size: 0.9rem;
   font-weight: 500;
 }
+/* Elementos editáveis */
+[contenteditable="true"] {
+  background-color: #ffffcc;
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+
+/* Botão de remover rota */
+.btn-remover-rota {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* Botão de remover posto */
+.btn-remover-posto {
+  color: #dc3545;
+  cursor: pointer;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+/* Painel admin */
+.admin-panel {
+  transition: all 0.3s ease;
+}
+
+/* Modal customizações */
+#adminModal .modal-header {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+#adminModal .modal-title {
+  font-weight: 600;
+}
