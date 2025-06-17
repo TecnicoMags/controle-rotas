@@ -1,4 +1,4 @@
-// Configuração do Firebase
+/* // Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDZXCaGEnBd8BujXKcrruSVFzvZDbtGToM",
   authDomain: "web-rotas-mags.firebaseapp.com",
@@ -9,4 +9,4 @@ const firebaseConfig = {
 };
 
 // Inicializa o Firebase
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig); */
