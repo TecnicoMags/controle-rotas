@@ -17,9 +17,9 @@ function verificarSenha() {
   const email = document.getElementById('emailAdmin').value.trim();
   const senha = document.getElementById('senhaAdmin').value.trim();
 
-  const hash = btoa(email + ':' + senha); // simples base64 "ofuscação"
+  const hash = btoa(email + ':' + senha); // simples Mascará "ofuscação"
 
-  const senhaEsperada = "YWRtQGdydXBvbWFncy5jb20uYnI6TWFnc0A2MzFh"; // base64 de "email:senha"
+  const senhaEsperada = "YWRtQGdydXBvbWFncy5jb20uYnI6TWFnc0A2MzFh"; // Mascará de "email:senha"
 
   if (hash === senhaEsperada) {
     document.getElementById('adminModal').style.display = 'none';
