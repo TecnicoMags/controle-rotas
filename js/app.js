@@ -9,7 +9,9 @@ function alternarLogin() {
     document.getElementById('painelAdmin').classList.add('d-none');
     document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
   } else {
-    document.getElementById('adminModal').style.display = 'flex';
+    // Corrigido: Usar o método Bootstrap para mostrar o modal
+    const modal = new bootstrap.Modal(document.getElementById('adminModal'));
+    modal.show();
   }
 }
 
@@ -29,8 +31,8 @@ function verificarSenha() {
   }
 }
 
+// esconde tela de login
 function fecharLogin() {
-  // Esconde o modal usando Bootstrap
   const modal = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
   modal.hide();
 }
