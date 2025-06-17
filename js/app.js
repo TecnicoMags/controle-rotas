@@ -3,31 +3,30 @@ const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serra
 
 // Funções de autenticação
 function alternarLogin() {
-  const user = firebase.auth().currentUser;
-  if (user) {
-    firebase.auth().signOut().then(() => {
-      document.getElementById('btnLogin').innerText = 'Entrar';
-      document.getElementById('painelAdmin').classList.add('d-none');
-      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
-    });
+  const logado = document.getElementById('btnLogin').innerText === 'Sair';
+  if (logado) {
+    document.getElementById('btnLogin').innerText = 'Entrar';
+    document.getElementById('painelAdmin').classList.add('d-none');
+    document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
   } else {
-    // Mostra o modal usando Bootstrap
-    const modal = new bootstrap.Modal(document.getElementById('adminModal'));
-    modal.show();
+    document.getElementById('adminModal').style.display = 'flex';
   }
 }
 
 function verificarSenha() {
-  const email = document.getElementById('emailAdmin').value;
-  const senha = document.getElementById('senhaAdmin').value;
-  firebase.auth().signInWithEmailAndPassword(email, senha)
-    .then(() => {
-      // Esconde o modal usando Bootstrap
-      const modal = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
-      modal.hide();
-      habilitarEdicao();
-    })
-    .catch(err => alert('Erro ao autenticar: ' + err.message));
+  const email = document.getElementById('emailAdmin').value.trim();
+  const senha = document.getElementById('senhaAdmin').value.trim();
+
+  const hash = btoa(email + ':' + senha); // simples base64 "ofuscação"
+
+  const senhaEsperada = "YWRtQGdydXBvbWFncy5jb20uYnI6TWFnc0A2MzFh"; // base64 de "email:senha"
+
+  if (hash === senhaEsperada) {
+    document.getElementById('adminModal').style.display = 'none';
+    habilitarEdicao();
+  } else {
+    alert("E-mail ou senha incorretos.");
+  }
 }
 
 function fecharLogin() {
