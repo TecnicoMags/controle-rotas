@@ -7,60 +7,291 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/estilo.css">
 </head>
-
-<!-- Atualizado -->
-
 <body>
   <div class="container py-4">
     <h2 class="text-center">Controle de Rotas</h2>
-
-    <div class="text-end mb-3">
-      <button class="btn btn-primary" onclick="alternarLogin()" id="btnLogin">Entrar</button>
-    </div>
-
-    <div id="painelAdmin" class="d-none admin-panel">
-      <div class="d-flex flex-column align-items-center gap-2 my-4">
-        <button class="btn btn-secondary w-100" onclick="exportarXLS()">Exportar Excel</button>
-        <button class="btn btn-secondary w-100" onclick="exportarImagem()">Exportar Imagem</button>
-        <button class="btn btn-secondary w-100" onclick="imprimirRotas()">Imprimir</button>
-        <input type="file" id="xmlInput" accept=".xml" class="d-none" onchange="importarXMLLocal()">
-        <button class="btn btn-warning w-100" onclick="document.getElementById('xmlInput').click()">Importar XML</button>
-        <button class="btn btn-success w-100" onclick="salvarLocal()">Salvar Alterações</button>
-        <button class="btn btn-info w-100" onclick="adicionarRota()">Adicionar Rota</button>
+    <div class="d-flex justify-content-between mb-3">
+      <div>
+        <button class="btn btn-secondary" onclick="exportarXLS()">Exportar Excel</button>
+        <button class="btn btn-secondary" onclick="exportarImagem()">Exportar Imagem</button>
+        <button class="btn btn-secondary" onclick="imprimirModulos()">Imprimir</button>
+        <button class="btn btn-success d-none" id="btnSalvar" onclick="salvarLocal()">Salvar Alterações</button>
+        <button class="btn btn-info d-none" id="btnAdicionarRota" onclick="adicionarRota()">Adicionar Rota</button>
       </div>
+      <button class="btn btn-primary" onclick="alternarLogin()" id="btnLogin">Login</button>
     </div>
-
     <div id="rotaContainer" class="row g-3"></div>
   </div>
 
-  <!-- Modal de login - Simplificado -->
-  <div id="adminModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Login Administrativo</h5>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="emailAdmin" class="form-label">E-mail</label>
-            <input type="email" id="emailAdmin" class="form-control" placeholder="Digite seu e-mail">
-          </div>
-          <div class="mb-3">
-            <label for="senhaAdmin" class="form-label">Senha</label>
-            <input type="password" id="senhaAdmin" class="form-control" placeholder="Digite sua senha">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="fecharLogin()">Cancelar</button>
-          <button type="button" class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
-        </div>
-      </div>
+  <div id="adminModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75" style="display: none; z-index: 1050;">
+  <div class="bg-white p-4 rounded shadow" style="width: 320px;">
+    <h5 class="mb-4">Login Administrativo</h5>
+    <div class="mb-3">
+      <label for="emailAdmin" class="form-label">E-mail</label>
+      <input type="email" id="emailAdmin" class="form-control" placeholder="Digite seu e-mail">
+    </div>
+    <div class="mb-4">
+      <label for="senhaAdmin" class="form-label">Senha</label>
+      <input type="password" id="senhaAdmin" class="form-control" placeholder="Digite sua senha">
+    </div>
+    <div class="d-grid gap-2">
+      <button class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
+      <button class="btn btn-secondary" onclick="fecharLogin()">Cancelar</button>
     </div>
   </div>
+</div>
+</div>
+    <div class="mb-4">
+      <label for="senhaAdmin" class="form-label">Senha</label>
+      <input type="password" id="senhaAdmin" class="form-control" placeholder="Digite sua senha">
+    </div>
+    <div class="d-grid gap-2">
+      <button class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
+      <button class="btn btn-secondary" onclick="fecharLogin()">Cancelar</button>
+    </div>
+  </div>
+</div>
+  <div class="mb-4">
+    <label for="senhaAdmin" class="form-label">Senha</label>
+    <input type="password" id="senhaAdmin" class="form-control" placeholder="Digite sua senha">
+  </div>
+  <div class="d-grid gap-2">
+    <button class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
+    <button class="btn btn-secondary" onclick="fecharLogin()">Cancelar</button>
+  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="js/app.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZXCaGEnBd8BujXKcrruSVFzvZDbtGToM",
+      authDomain: "web-rotas-mags.firebaseapp.com",
+      projectId: "web-rotas-mags",
+      storageBucket: "web-rotas-mags.appspot.com",
+      messagingSenderId: "59148195031",
+      appId: "1:59148195031:web:706861689db1bb7ef10c92"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script>
+    const zonas = ["Zona Norte", "Zona Sul", "Zona Oeste", "Baixada", "Região Serrana"];
+
+    function alternarLogin() {
+  const user = firebase.auth().currentUser;
+  if (user) {
+    firebase.auth().signOut().then(() => {
+      document.getElementById('btnLogin').innerText = 'Login';
+      document.getElementById('btnSalvar').classList.add('d-none');
+      document.getElementById('btnAdicionarRota').classList.add('d-none');
+      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.add('d-none'));
+    });
+  } else {
+    document.getElementById('adminModal').style.display = 'flex';
+  }
+      } else {
+        document.getElementById('adminModal').style.display = 'flex';
+      }
+    }
+
+    function verificarSenha() {
+      const email = document.getElementById('emailAdmin').value;
+      const senha = document.getElementById('senhaAdmin').value;
+      firebase.auth().signInWithEmailAndPassword(email, senha)
+        .then(() => {
+          document.getElementById('adminModal').style.display = 'none';
+          habilitarEdicao();
+        })
+        .catch(err => alert('Erro ao autenticar: ' + err.message));
+    }
+
+    function fecharLogin() {
+      document.getElementById('adminModal').style.display = 'none';
+    }
+
+    function habilitarEdicao() {
+      document.querySelectorAll('td[contenteditable]').forEach(td => td.contentEditable = true);
+      document.querySelectorAll('.zona-select').forEach(s => s.disabled = false);
+      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.remove('d-none'));
+      document.getElementById('btnSalvar').classList.remove('d-none');
+      document.querySelectorAll('.btn-editar-postos, .btn-remover-rota, .btn-remover-posto').forEach(btn => btn.classList.remove('d-none'));
+      document.getElementById('btnAdicionarRota').classList.remove('d-none');
+      document.getElementById('btnLogin').innerText = 'Sair';
+    }
+
+    function criarRota(container, numero, zona, postos = []) {
+      const col = document.createElement('div');
+      col.className = 'col-md-4';
+
+      const card = document.createElement('div');
+      card.className = 'p-3 border rounded position-relative';
+
+      const titulo = document.createElement('h5');
+      titulo.className = 'text-center';
+      titulo.textContent = `Rota ${numero}`;
+
+      const btnRemover = document.createElement('button');
+      btnRemover.textContent = 'X';
+      btnRemover.className = 'btn btn-sm btn-danger btn-remover-rota d-none';
+      btnRemover.onclick = () => col.remove();
+
+      const select = document.createElement('select');
+      select.className = 'form-select form-select-sm zona-select';
+      zonas.forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z;
+        opt.text = z;
+        if (z === zona) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.disabled = true;
+
+      const tabela = document.createElement('table');
+      tabela.className = 'table table-sm table-bordered';
+      const tbody = document.createElement('tbody');
+
+      if (postos.length === 0) postos = ["Posto 1"];
+      postos.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = p;
+        td.setAttribute('contenteditable', 'false');
+
+        const btnX = document.createElement('span');
+        btnX.textContent = ' ✖';
+        btnX.className = 'btn-remover-posto d-none';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
+
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+
+      tabela.appendChild(tbody);
+
+      const btnQtd = document.createElement('button');
+      btnQtd.className = 'btn btn-sm btn-outline-primary btn-editar-postos d-none';
+      btnQtd.textContent = 'Quantidade';
+      btnQtd.onclick = () => editarPostos(tbody);
+
+      card.appendChild(titulo);
+      card.appendChild(btnRemover);
+      card.appendChild(select);
+      card.appendChild(tabela);
+      card.appendChild(btnQtd);
+      col.appendChild(card);
+      container.appendChild(col);
+    }
+
+    function editarPostos(tbody) {
+      const qtd = parseInt(prompt("Quantos postos deseja?"));
+      if (isNaN(qtd) || qtd < 1) return;
+      tbody.innerHTML = '';
+      for (let i = 0; i < qtd; i++) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.textContent = `Posto ${i + 1}`;
+        td.setAttribute('contenteditable', 'true');
+
+        const btnX = document.createElement('span');
+        btnX.textContent = ' ✖';
+        btnX.className = 'btn-remover-posto';
+        btnX.onclick = () => tr.remove();
+        td.appendChild(btnX);
+
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+    }
+
+    function adicionarRota() {
+      const container = document.getElementById('rotaContainer');
+      const numero = document.querySelectorAll('.rota-box').length + 1;
+      criarRota(container, numero, zonas[0]);
+    }
+
+    function salvarLocal() {
+      const rotas = [];
+      document.querySelectorAll('.col-md-4').forEach((col, i) => {
+        const zona = col.querySelector('select').value;
+        const postos = Array.from(col.querySelectorAll('tbody tr')).map(tr => tr.cells[0].innerText.replace('✖', '').trim());
+        rotas.push({ rota: i + 1, zona, postos });
+      });
+
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rotas>\n';
+      rotas.forEach(r => {
+        xml += `  <rota zona=\"${r.zona}\">\n`;
+        r.postos.forEach(p => {
+          xml += `    <posto>${p}</posto>\n`;
+        });
+        xml += `  </rota>\n`;
+      });
+      xml += '</rotas>';
+
+      const blob = new Blob([xml], { type: 'application/xml' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'rotas.xml';
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      alert('Arquivo rotas.xml gerado e baixado. Substitua no repositório para atualizar.');
+    }
+
+    function exportarImagem() {
+      html2canvas(document.getElementById('rotaContainer')).then(canvas => {
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL();
+        a.download = 'rotas.png';
+        a.click();
+      });
+    }
+
+    function exportarXLS() {
+      const wb = XLSX.utils.book_new();
+      document.querySelectorAll('.table').forEach((table, i) => {
+        const ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, `Rota ${i + 1}`);
+      });
+      XLSX.writeFile(wb, 'rotas.xlsx');
+    }
+
+    function imprimirModulos() {
+      window.print();
+    }
+
+    async function carregarXMLDoGitHub() {
+      const url = "https://tecnicomags.github.io/controle-rotas/data/rotas.xml";
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Erro ao baixar XML');
+        const textoXML = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(textoXML, "text/xml");
+
+        const container = document.getElementById('rotaContainer');
+        container.innerHTML = '';
+
+        const rotas = xmlDoc.getElementsByTagName("rota");
+        for (let i = 0; i < rotas.length; i++) {
+          const zona = rotas[i].getAttribute("zona") || 'Zona Norte';
+          const postos = Array.from(rotas[i].getElementsByTagName("posto")).map(p => p.textContent);
+          criarRota(container, i + 1, zona, postos);
+        }
+      } catch (err) {
+        console.warn("Arquivo XML não encontrado. Importe novos dados ou crie uma nova tabela de rotas.");
+      }
+    }
+
+    window.addEventListener("load", () => {
+  carregarXMLDoGitHub();
+  document.getElementById('adminModal').style.display = 'none';
+});
+  </script>
 </body>
 </html>
